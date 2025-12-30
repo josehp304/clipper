@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+yt-dlp
+groq
+youtube-transcript-api
+firebase-admin
