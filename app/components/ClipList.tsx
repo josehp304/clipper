@@ -54,7 +54,7 @@ export default function ClipList({
                                 <button
                                     onClick={() => setEditingClip({ ...clip, aspect_ratio: '16:9' })}
                                     disabled={!!processingClip}
-                                    className="w-full bg-white text-black py-2 rounded-lg hover:bg-zinc-200 transition flex justify-center items-center gap-2 font-bold"
+                                    className="w-full bg-white text-black py-2 rounded-lg hover:bg-zinc-200 transition flex justify-center items-center gap-2 font-bold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
                                 >
                                     <Scissors className="w-4 h-4" /> Edit & Generate
                                 </button>

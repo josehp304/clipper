@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '@clerk/nextjs';
 import { Menu, Scissors } from 'lucide-react';
 import { syncClerkUserToFirestore, saveProjectToFirestore } from '@/lib/sync-utils';
 
+import { toast } from 'sonner';
 import Sidebar from './components/Sidebar';
 import UrlInputSection from './components/UrlInputSection';
 import VideoEditor from './components/VideoEditor';
@@ -31,6 +32,17 @@ export default function Home() {
   const [uploadingClipId, setUploadingClipId] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (editingClip && editorRef.current) {
+      // Small timeout to ensure DOM is ready and layout is stable
+      setTimeout(() => {
+        editorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [editingClip]);
 
   // Persistent Storage State
   const [projects, setProjects] = useState<any[]>([]);
@@ -164,6 +176,7 @@ export default function Home() {
           start_time: start,
           end_time: end,
           aspect_ratio: clip.aspect_ratio || "16:9",
+          video_quality: clip.video_quality || "1080p",
           captions: transcript.filter((t: any) => {
             const tStart = t.start;
             const tEnd = t.start + t.duration;
@@ -222,7 +235,7 @@ export default function Home() {
         setViewingClip({ ...clip, url: data.url, ...editingClip });
       }
     } catch (e) {
-      alert('Failed to connect to worker. Is it running?');
+      toast.error('Failed to connect to worker. Is it running?');
     } finally {
       setProcessingClip(null);
     }
@@ -230,7 +243,7 @@ export default function Home() {
 
   const handleUpload = async (clipId: string, clipUrl: string, title?: string) => {
     if (!isSignedIn) {
-      alert("Please sign in to upload to YouTube");
+      toast.warning("Please sign in to upload to YouTube");
       return;
     }
 
@@ -258,10 +271,16 @@ export default function Home() {
       }
 
       setUploadSuccess(data.videoUrl);
-      alert(`Successfully uploaded to YouTube! URL: ${data.videoUrl}`);
+      toast.success('Successfully uploaded to YouTube!', {
+        description: 'Your clip is now live on your channel.',
+        action: {
+          label: 'View',
+          onClick: () => window.open(data.videoUrl, '_blank')
+        }
+      });
     } catch (e: any) {
       console.error(e);
-      alert(`Upload failed: ${e.message}`);
+      toast.error(`Upload failed: ${e.message}`);
     } finally {
       setUploadingClipId(null);
     }
@@ -320,7 +339,7 @@ export default function Home() {
         {showLanding ? (
           <>
             <button
-              className="md:hidden absolute top-4 right-4 z-50 p-2 bg-zinc-900 rounded-lg text-zinc-400 border border-zinc-800"
+              className="md:hidden absolute top-4 right-4 z-[60] p-2 bg-zinc-900 rounded-lg text-zinc-400 border border-zinc-800"
               onClick={() => setMobileMenuOpen(true)}
             >
               <Menu className="w-6 h-6" />
@@ -359,15 +378,17 @@ export default function Home() {
 
             <div className="grid lg:grid-cols-1 gap-8">
               {editingClip ? (
-                <VideoEditor
-                  editingClip={editingClip}
-                  setEditingClip={setEditingClip}
-                  transcript={transcript}
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  handleGenerate={handleGenerate}
-                  processingClip={processingClip}
-                />
+                <div ref={editorRef} className="scroll-mt-24">
+                  <VideoEditor
+                    editingClip={editingClip}
+                    setEditingClip={setEditingClip}
+                    transcript={transcript}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    handleGenerate={handleGenerate}
+                    processingClip={processingClip}
+                  />
+                </div>
               ) : null}
 
               <ClipList

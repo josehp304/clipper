@@ -6,9 +6,10 @@ from pydantic import BaseModel
 import uvicorn
 import os
 import uuid
-from downloader import download_video
+from downloader import download_video, download_audio
 from processor import process_video
-from utils import fetch_transcript, group_transcript_into_chunks, generate_srt
+from utils import group_transcript_into_chunks, generate_srt
+from transcriber import compress_audio, transcribe_audio
 from llm import analyze_transcript_chunk
 from firebase_utils import upload_to_firebase
 from typing import List, Dict, Optional, Any
@@ -33,6 +34,7 @@ class ClipRequest(BaseModel):
     start_time: float
     end_time: float
     aspect_ratio: str = "16:9"
+    video_quality: str = "1080p"
     captions: Optional[List[Dict]] = None
     # Caption Style Options
     caption_style: Optional[Dict[str, Any]] = None
@@ -42,10 +44,23 @@ class AnalyzeRequest(BaseModel):
 
 @app.post("/analyze")
 async def analyze_video(request: AnalyzeRequest):
+    audio_path = None
+    compressed_path = None
     try:
-        # 1. Fetch Transcript
-        print(f"Fetching transcript for {request.video_id}...")
-        transcript = fetch_transcript(request.video_id)
+        # 1. Custom Transcript Pipeline
+        print(f"Starting custom transcription pipeline for {request.video_id}...")
+        
+        # 1a. Download Audio
+        print("Downloading audio...")
+        audio_path = download_audio(request.video_id)
+        
+        # 1b. Compress Audio
+        print(f"Compressing audio: {audio_path}")
+        compressed_path = compress_audio(audio_path)
+        
+        # 1c. Transcribe with Groq
+        print("Transcribing with Groq Whisper...")
+        transcript = transcribe_audio(compressed_path)
         
         # 2. Chunk Transcript
         print(f"Transcript length: {len(transcript)} segments. Chunking...")
@@ -72,12 +87,24 @@ async def analyze_video(request: AnalyzeRequest):
     except Exception as e:
         print(f"Error analyzing video: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # Cleanup temporary audio files
+        if audio_path and os.path.exists(audio_path):
+            try:
+                os.remove(audio_path)
+            except:
+                pass
+        if compressed_path and os.path.exists(compressed_path):
+             try:
+                os.remove(compressed_path)
+             except:
+                pass
 
 @app.post("/clip")
 async def create_clip(request: ClipRequest):
     try:
         # 1. Download Video
-        raw_video_path = download_video(request.video_id)
+        raw_video_path = download_video(request.video_id, quality=request.video_quality)
         
         # 2. Process Clip
         clip_filename = f"{request.video_id}_{request.start_time}_{request.end_time}.mp4"

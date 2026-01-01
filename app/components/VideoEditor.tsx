@@ -52,6 +52,24 @@ export default function VideoEditor({
                             </div>
                         </div>
 
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-2">Video Quality</label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {['1080p', '720p', '480p', '360p'].map(quality => (
+                                    <button
+                                        key={quality}
+                                        onClick={() => setEditingClip({ ...editingClip, video_quality: quality })}
+                                        className={`flex-1 py-2 rounded-lg border-2 transition flex items-center justify-center gap-2 font-medium text-sm ${editingClip.video_quality === quality || (!editingClip.video_quality && quality === '1080p')
+                                            ? 'border-white bg-white text-black'
+                                            : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
+                                            }`}
+                                    >
+                                        {quality}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-zinc-400 mb-2">Start Time</label>

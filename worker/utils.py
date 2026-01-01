@@ -1,22 +1,6 @@
-from youtube_transcript_api import YouTubeTranscriptApi
 from typing import List, Dict
 
-def fetch_transcript(video_id: str) -> List[Dict]:
-    """
-    Fetches transcript for a given video ID using youtube_transcript_api.
-    Returns a list of dictionaries with 'text', 'start', 'duration'.
-    """
-    try:
-        # instantiate api and fetch
-        ytt_api = YouTubeTranscriptApi()
-        transcript = ytt_api.fetch(video_id)
-        # convert to list of dicts for compatibility
-        return transcript.to_raw_data()
-
-    except Exception as e:
-        print(f"Error fetching transcript: {e}")
-        # fallback for old behavior if needed, or re-raise
-        raise e
+# Fetch transcript removed in favor of Groq Whisper pipeline
 
 def group_transcript_into_chunks(transcript: List[Dict], max_chars: int = 5000) -> List[str]:
     """

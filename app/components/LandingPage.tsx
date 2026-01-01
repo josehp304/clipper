@@ -19,17 +19,22 @@ export default function LandingPage({
     user
 }: LandingPageProps) {
     return (
-        <div className="min-h-screen bg-black text-white flex flex-col items-center relative overflow-hidden">
+        <div className="min-h-screen md:min-h-screen bg-black text-white flex flex-col items-center relative overflow-hidden">
+
+            {/* Test Account Banner */}
+            <div className="w-full bg-violet-900/20 border-b border-violet-500/20 text-violet-200 text-xs md:text-sm py-2 px-4 text-center z-50 relative">
+                <span className="font-semibold">Note:</span> Currently uploading to YouTube requires test accounts. DM me to get access.
+            </div>
 
             {/* Background Gradients */}
             <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-violet-900/20 rounded-full blur-[128px] pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/10 rounded-full blur-[128px] pointer-events-none" />
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col justify-center items-center w-full max-w-5xl px-4 z-10 pt-20 pb-32">
+            <div className="flex-1 flex flex-col justify-center items-center w-full max-w-5xl px-4 z-10 pt-12 pb-12 md:pt-20 md:pb-32">
 
                 {/* Badge */}
-                <div className="mb-8 animate-fade-in-up">
+                <div className="mb-6 md:mb-8 animate-fade-in-up">
                     <span className="bg-zinc-900 border border-zinc-800 text-zinc-300 px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 shadow-xl">
                         <Sparkles className="w-3 h-3 text-violet-400" />
                         <span>AI-Powered Video Segmentation</span>
@@ -37,12 +42,12 @@ export default function LandingPage({
                 </div>
 
                 {/* Headline */}
-                <h1 className="text-5xl md:text-7xl font-sans font-bold text-center mb-6 tracking-tight leading-tight bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
+                <h1 className="text-4xl md:text-7xl font-sans font-bold text-center mb-6 tracking-tight leading-tight bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
                     Turn long videos into <br className="hidden md:block" />
                     <span className="text-white">viral clips</span> with AI magic.
                 </h1>
 
-                <p className="text-lg md:text-xl text-zinc-400 text-center max-w-2xl mb-12 leading-relaxed">
+                <p className="text-lg md:text-xl text-zinc-400 text-center max-w-2xl mb-8 md:mb-12 leading-relaxed">
                     The fastest way to repurpose your content. Automatically detect, crop, and caption the best moments from your YouTube videos.
                 </p>
 

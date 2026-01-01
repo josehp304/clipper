@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
         console.log(`Sending request to worker for ${videoId}...`);
 
         try {
-            const workerResponse = await fetch('http://localhost:8000/analyze', {
+            const workerUrl = process.env.WORKER_URL || 'http://localhost:8000';
+            const workerResponse = await fetch(`${workerUrl}/analyze`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
