@@ -175,8 +175,10 @@ export default function Home() {
       });
 
       const data = await response.json();
-      if (data.url) {
-        setGeneratedClipUrl(data.url);
+      if (data.filename) {
+        // Use the new Proxy URL
+        const proxyUrl = `/api/download?file=${data.filename}`;
+        setGeneratedClipUrl(proxyUrl);
         setGeneratedClipId(clip.id);
 
         // Update clip in persistent storage
@@ -185,7 +187,7 @@ export default function Home() {
             return {
               ...p,
               clips: p.clips.map((c: any) =>
-                (c.id === clip.id || c.title === clip.title) ? { ...c, url: data.url, ...editingClip } : c
+                (c.id === clip.id || c.title === clip.title) ? { ...c, url: `/api/download?file=${data.filename}`, ...editingClip } : c
               )
             };
           }
@@ -200,7 +202,7 @@ export default function Home() {
             const syncedProject = {
               ...updatedProject,
               clips: updatedProject.clips.map((c: any) =>
-                (c.id === clip.id || c.title === clip.title) ? { ...c, url: data.url, ...editingClip } : c
+                (c.id === clip.id || c.title === clip.title) ? { ...c, url: `/api/download?file=${data.filename}`, ...editingClip } : c
               )
             };
             saveProjectToFirestore(syncedProject).catch(console.error);
@@ -211,11 +213,11 @@ export default function Home() {
 
         // Update local clips state immediately
         setClips(prev => prev.map(c =>
-          (c.id === clip.id || c.title === clip.title) ? { ...c, url: data.url, ...editingClip } : c
+          (c.id === clip.id || c.title === clip.title) ? { ...c, url: `/api/download?file=${data.filename}`, ...editingClip } : c
         ));
 
         // Open the detail view
-        setViewingClip({ ...clip, url: data.url, ...editingClip });
+        setViewingClip({ ...clip, url: `/api/download?file=${data.filename}`, ...editingClip });
       }
     } catch (e) {
       toast.error('Failed to connect to worker. Is it running?');

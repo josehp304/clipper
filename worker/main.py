@@ -11,7 +11,7 @@ from processor import process_video
 from utils import group_transcript_into_chunks, generate_srt
 from transcriber import compress_audio, transcribe_audio
 from llm import analyze_transcript_chunk
-from firebase_utils import upload_to_firebase
+
 from typing import List, Dict, Optional, Any
 
 app = FastAPI()
@@ -43,7 +43,7 @@ class AnalyzeRequest(BaseModel):
     video_id: str
 
 @app.post("/analyze")
-async def analyze_video(request: AnalyzeRequest):
+def analyze_video(request: AnalyzeRequest):
     audio_path = None
     compressed_path = None
     try:
@@ -74,7 +74,7 @@ async def analyze_video(request: AnalyzeRequest):
         all_clips = []
         
         for chunk in processing_chunks:
-            result = await analyze_transcript_chunk(chunk)
+            result = analyze_transcript_chunk(chunk)
             if result and "clips" in result:
                all_clips.extend(result["clips"])
                
@@ -101,7 +101,7 @@ async def analyze_video(request: AnalyzeRequest):
                 pass
 
 @app.post("/clip")
-async def create_clip(request: ClipRequest):
+def create_clip(request: ClipRequest):
     try:
         # 1. Download Video
         raw_video_path = download_video(request.video_id, quality=request.video_quality)
@@ -136,13 +136,7 @@ async def create_clip(request: ClipRequest):
                  if srt_path and os.path.exists(srt_path):
                      os.remove(srt_path)
         
-        # 3. Upload to Firebase
-        print(f"Uploading {clip_filename} to Firebase Storage...")
-        firebase_url = upload_to_firebase(output_path, f"clips/{clip_filename}")
-        
-        # 4. Return URL
-        final_url = firebase_url if firebase_url else f"http://localhost:8000/clips/{clip_filename}"
-        return {"url": final_url, "status": "completed"}
+        return {"url": f"http://localhost:8000/clips/{clip_filename}", "filename": clip_filename, "status": "completed"}
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
