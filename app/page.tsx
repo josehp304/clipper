@@ -163,32 +163,14 @@ export default function Home() {
     setGeneratedClipId(null);
 
     try {
-      const start = parseTime(clip.start_time);
-      const end = parseTime(clip.end_time);
-
-      const videoId = new URL(url).searchParams.get('v') || new URL(url).pathname.slice(1);
-
-      const workerUrl = process.env.NEXT_PUBLIC_WORKER_URL || 'http://localhost:8000';
-      const response = await fetch(`${workerUrl}/clip`, {
+      const response = await fetch('/api/clip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          video_id: videoId,
-          start_time: start,
-          end_time: end,
-          aspect_ratio: clip.aspect_ratio || "16:9",
-          video_quality: clip.video_quality || "1080p",
-          captions: transcript.filter((t: any) => {
-            const tStart = t.start;
-            const tEnd = t.start + t.duration;
-            // Check overlap
-            return tEnd > start && tStart < end;
-          }),
-          caption_style: {
-            fontSize: (editingClip || clip).fontSize || 24,
-            fontColor: (editingClip || clip).fontColor || '#FFFFFF',
-            bgColor: (editingClip || clip).bgColor || '#000000'
-          }
+          url,
+          clip,
+          transcript,
+          editingClip
         })
       });
 
