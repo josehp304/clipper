@@ -37,7 +37,7 @@ export async function POST(request: Request) {
                 bgColor: stylizedClip.bgColor || '#000000'
             }
         };
-
+        console.log("hi1")
         const response = await fetch(`${workerUrl}/clip`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -46,6 +46,8 @@ export async function POST(request: Request) {
 
         if (!response.ok) {
             const errorText = await response.text();
+            console.log("hi")
+            console.log(errorText)
             return NextResponse.json({ error: `Worker error: ${errorText}` }, { status: response.status });
         }
 

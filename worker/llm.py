@@ -26,7 +26,7 @@ def get_groq_client():
         raise ValueError("GROQ_API_KEY is not set")
     return Groq(api_key=api_key)
 
-async def analyze_transcript_chunk(transcript_text: str):
+def analyze_transcript_chunk(transcript_text: str):
     """
     Analyzes a transcript chunk using Groq API to find engaging clips.
     """
