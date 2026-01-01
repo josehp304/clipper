@@ -22,15 +22,30 @@ def download_video(video_id: str, output_dir: str = "downloads", quality: str = 
     output_template = os.path.join(output_dir, f"{video_id}_{quality}.%(ext)s")
     
     # yt-dlp format string: Best video with height <= X + Best Audio
-    format_str = f'bestvideo[height<={height}][ext=mp4]+bestaudio[ext=m4a]/best[height<={height}][ext=mp4]/best'
+    # Removed strict extension checks to avoid "Requested format not available" errors
+    # We rely on merge_output_format to convert to mp4 if needed
+    format_str = f'bestvideo[height<={height}]+bestaudio/best[height<={height}]/best'
     
+    # Look for cookies.txt in the project root (one level up from worker)
+    # Or current directory, or specified via env var
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    cookies_path = os.path.join(project_root, "cookies.txt")
+    
+    if not os.path.exists(cookies_path):
+        # Fallback to current directory
+        cookies_path = "cookies.txt"
+
     ydl_opts = {
         'format': format_str,
         'outtmpl': output_template,
         'quiet': True,
         'no_warnings': True,
         'noplaylist': True,
+        'merge_output_format': 'mp4', # Ensure output is mp4
     }
+    
+    if os.path.exists(cookies_path):
+        ydl_opts['cookiefile'] = cookies_path
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(url, download=True)
@@ -50,16 +65,32 @@ def download_audio(video_id: str, output_dir: str = "downloads") -> str:
     # Download best audio, prefer m4a for compatibility
     output_template = os.path.join(output_dir, f"{video_id}.%(ext)s")
     
+    # Look for cookies.txt
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    cookies_path = os.path.join(project_root, "cookies.txt")
+    
+    if not os.path.exists(cookies_path):
+        cookies_path = "cookies.txt"
+    
     ydl_opts = {
-        'format': 'bestaudio[ext=m4a]/bestaudio',
+        'format': 'bestaudio/best', # Relaxed from [ext=m4a]
         'outtmpl': output_template,
         'quiet': True,
         'no_warnings': True,
         'noplaylist': True,
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'm4a',
+        }],
     }
+    
+    if os.path.exists(cookies_path):
+        ydl_opts['cookiefile'] = cookies_path
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(url, download=True)
         filename = ydl.prepare_filename(info_dict)
         
-    return filename
+    # Post-processor converts to m4a, so update filename extension
+    base, _ = os.path.splitext(filename)
+    return f"{base}.m4a"

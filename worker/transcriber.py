@@ -26,7 +26,7 @@ def compress_audio(input_path: str, output_dir: str = "downloads") -> str:
         "-i", input_path,
         "-ar", "16000",       # 16kHz sampling rate
         "-ac", "1",           # Mono
-        "-map", "0:a:",       # Map audio stream
+        "-vn",                # No video (just in case)
         "-c:a", "libmp3lame", # MP3 codec
         "-b:a", "32k",        # 32k bitrate
         "-y",                 # Overwrite output file
