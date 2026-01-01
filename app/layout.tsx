@@ -26,11 +26,18 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Clipper',
     locale: 'en_US',
+    images: [{
+      url: 'https://res.cloudinary.com/dgxkgtq5c/image/upload/v1767294992/clipperog_qjtqf4.jpg',
+      width: 1200,
+      height: 630,
+      alt: 'Clipper - AI Video Repurposing',
+    }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Clipper - AI Video Repurposing',
     description: 'Transform long-form videos into engaging shorts with AI.',
+    images: ['https://res.cloudinary.com/dgxkgtq5c/image/upload/v1767294992/clipperog_qjtqf4.jpg'],
   },
 };
 
