@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const workerUrl = process.env.WORKER_URL || 'http://localhost:8000';
+        const workerUrl = process.env.NEXT_PUBLIC_WORKER_URL || 'http://localhost:8000';
         const fileUrl = `${workerUrl}/download/${file}`;
 
         const workerResponse = await fetch(fileUrl);
