@@ -168,7 +168,8 @@ export default function Home() {
 
       const videoId = new URL(url).searchParams.get('v') || new URL(url).pathname.slice(1);
 
-      const response = await fetch('http://localhost:8000/clip', {
+      const workerUrl = process.env.NEXT_PUBLIC_WORKER_URL || 'http://localhost:8000';
+      const response = await fetch(`${workerUrl}/clip`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
